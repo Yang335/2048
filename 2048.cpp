@@ -4,15 +4,11 @@
 #include<stdlib.h>
 #include<time.h>
 #include<stdio.h>
+#include<unistd.h>
  
-int y,x;
 int jiemian[4][4] = {0};
 int i,j;
 int score=0;
-
-const int GRID_WIDTH = 40, GRID_HEIGHT = 65;
-const int BLOCK_LEFT = 560, BLOCK_TOP = 280;
-
 
 void left()
 {	
@@ -114,9 +110,20 @@ void right()
 				}
 }
 
+void restart()
+{
+        int i,j;
+        for(i=0;i<4;i++){
+                for(j=0;j<4;j++){
+                        jiemian[i][j]=0; 
+                }
+        }
+}
+
+
 void rand_map()
 {
-	
+	int x,y;
 do{
 	y= rand()%4;
 	x= rand()%4;
@@ -184,15 +191,6 @@ int do_check(int *map){
 	return 0;
 }
 
-void get_mou()
-{
-// 这个循环，is_run判断窗口是否还在，delay_fps是延时
-	// 后面讲动画的时候会详细讲解，现不要在此纠结
-	for ( ; is_run(); )
-	{}
-		
-		
-}
 
 int main()
 {
@@ -207,10 +205,10 @@ int main()
 	getimage(img, "D:\\2048\\image\\2048_bg.png");
 	putimage(0, 0, img);
 	delimage(img);
-	
+	rand_map();
 	while(1)
 	{
-	  
+	s_core();
 	int *pmap = &jiemian[0][0];
 	int e = do_check(pmap);
 	if (e != 0)
@@ -219,74 +217,96 @@ int main()
 			setfont(72, 0, "宋体");
 		outtextxy(150, 150, "Game over!");
 		//system("pause");
-		getch();
+		//getch();
 		return 0; 
 	}
 	//生成随机位置 
 	rand_map();
 	//显示4*4数字方格
 	show_map(); 
-	s_core();
-	//key_msg getkey();
-	if (kbhit()) {
-	
-	
-	char cmd=getch();
-	switch(cmd)
-		{
-			case 'a':
-				printf("左\n");
-				left();
-				break;
-			case 's':
-				printf("下\n");
-				down();
-				break;
-			case 'w':
-				printf("上\n");
-				up();
-				break;
-			case 'd':
-				printf("右\n");
-				right();
-				break;
-			default:
-				printf("输入错误\n");
-		}
-}
-else
-{
+
 		char str[32];
-		int xClick, yClick;
-	
+		int x,y;
 		mouse_msg msg = { 0 };
-		//while (mousemsg()) 
-		//{
-		delay_fps(60);
-		msg = getmouse();
-		if (msg.is_left() && msg.is_down()) {
+		while (mousemsg()) 
+		{
+			msg = getmouse();
+		}
+		/*if (msg.is_left() && msg.is_down()) {
 				//标志位置位，记录点击位置
 				
 				xClick = msg.x;
 				yClick = msg.y;
-			}
+			}*/
 		//获取鼠标坐标，此函数不等待。若鼠标移出了窗口，那么坐标值不会更新
 		//特殊情况是，你按着鼠标键不放，拖出窗口，这样坐标值会依然更新
 		mousepos(&x, &y);
-sprintf(str, "%4d %4d", x, y);
+		sprintf(str, "%4d %4d", x, y);
 		//格式化输出为字符串，用于后面 
-		outtextxy(0, 0, str);
-		if(560 <= xClick && xClick < 560 + 40
-		&& 280 <= yClick && yClick < 280 + 65)
-		{
-			if(msg.is_left() && msg.is_down())
+		//outtextxy(0, 0, str);
+	//	delay_fps(60);
+			if((int)msg.is_left() && (int)msg.is_up())
 			{
+				/*if((560 <= x && x < 560 + 40)
+				&& (280 <= y && y < 280 + 65))
+				{
 				//outtextxy(150, 150, "鼠标点击了");
 				left();
-			}
+				}*/
+				if((x>600 && x<700)&& (y<300 && y>250) )
+				{	
+ 				up();
+ 				}
+ 				if((x>600 && x<700)&& (y>350 && y<400) )
+				{
+				down();
+				}
+ 				if((x>550 && x<610)&& (y<370 && y>280))
+				{ 
+ 				left();
+ 				}
+ 				if((x>690 && x<750)&& (y<370 && y>270))
+				{ 
+ 				right();
+ 				}
+ 				if((x>620 && x<690)&& (y<340 && y>310))
+				{ 
+ 				restart();
+ 				show_map();
+ 				}
+				rand_map();
+			}	
+	
+	//key_msg getkey();
+			
+			char cmd=0;
+			if(kbhit())
+			{
+			cmd=getch();
+			rand_map();
+		switch(cmd)
+			{
+			case 'a':
+				left();
+				break;
+			case 's':
+				down();
+				break;
+			case 'w':
+				up();
+				break;
+			case 'd':
+				right();
+				break;
+			case 'r':
+				restart();
+				break;
+			default:
+				printf("输入错误\n");
+				break;
 		}
-		//}	
-	}
+}
+
 
 
 
